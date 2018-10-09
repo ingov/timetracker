@@ -27,6 +27,10 @@ public class TimeRecordIT {
         tr = new TimeRecord(1, calendar, false, 0, start, calendar, true, null);
         assertFalse(tr.isValide());
 
+        //either start or enddate is null
+        tr = new TimeRecord(1, calendar, false, 0, null, calendar, true, null);
+        assertFalse(tr.isValide());
+
         // enddate not past startdate
         tr = new TimeRecord(1, calendar, false, 0, calendar, calendar, true, null);
         assertFalse(tr.isValide());

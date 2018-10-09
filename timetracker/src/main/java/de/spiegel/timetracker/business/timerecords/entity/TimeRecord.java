@@ -2,6 +2,7 @@ package de.spiegel.timetracker.business.timerecords.entity;
 
 import de.spiegel.timetracker.business.validation.CrossCheck;
 import de.spiegel.timetracker.business.validation.ValidEntity;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -134,7 +135,29 @@ public class TimeRecord implements ValidEntity {
 
     @Override
     public boolean isValide() {
-        return date != null && userId != 0;
-}
+        boolean isOk = date != null && userId != 0;
+
+        // date not same day as startdate-day
+        if (isOk && startdate != null) {
+            isOk = date.equals(startdate) || date.after(startdate);
+            if (isOk) {
+                SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
+                isOk = fmt.format(date.getTime()).equals(fmt.format(startdate.getTime()));
+            }
+        }
+        //either start or enddate is null
+        if (isOk) {
+            isOk = (startdate == null && enddate == null) || (startdate != null && enddate != null);
+        }
+        // enddate not past startdate
+        if (isOk && enddate != null && startdate != null) {
+            isOk = enddate.after(startdate);
+        }
+        // fza and leisure day
+        if (isOk) {
+            isOk = !(leisure && fza != null && fza != 0);
+        }
+        return isOk;
+    }
 
 }
