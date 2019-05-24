@@ -2,12 +2,14 @@ package de.spiegel.timetracker.business.timerecords.entity;
 
 import de.spiegel.timetracker.business.validation.CrossCheck;
 import de.spiegel.timetracker.business.validation.ValidEntity;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.NamedQuery;
+import javax.persistence.Temporal;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -18,14 +20,14 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author veithi
  */
 @Entity
-@NamedQuery(name = TimeRecord.findAll, query = "SELECT t from TimeRecord t")
+@NamedQuery(name = TimeRecord.FIND_ALL, query = "SELECT t from TimeRecord t")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @CrossCheck
-public class TimeRecord implements ValidEntity {
+public class TimeRecord implements ValidEntity, Serializable {
 
     static final String PREFIX = "timetracker.entity.TimeRecord.";
-    public static final String findAll = PREFIX + "findAll";
+    public static final String FIND_ALL = PREFIX + "findAll";
 
     @Id
     @GeneratedValue
@@ -35,17 +37,20 @@ public class TimeRecord implements ValidEntity {
     private long userId;
 
     @NotNull
-    private Calendar date;
+    @Temporal(javax.persistence.TemporalType.DATE)
+    private Calendar recordDate;
     private boolean dispatcher;
     private Integer fza;
+    @Temporal(javax.persistence.TemporalType.DATE)
     private Calendar startdate;
+    @Temporal(javax.persistence.TemporalType.DATE)
     private Calendar enddate;
     private boolean leisure;
     private Long ticketId;
 
     public TimeRecord(long userId, Calendar date, boolean dispatcher, Integer fza, Calendar startdate, Calendar enddate, boolean leisure, Long ticketId) {
         this.userId = userId;
-        this.date = date;
+        this.recordDate = date;
         this.dispatcher = dispatcher;
         this.fza = fza;
         this.startdate = startdate;
@@ -74,11 +79,11 @@ public class TimeRecord implements ValidEntity {
     }
 
     public Calendar getDate() {
-        return date;
+        return recordDate;
     }
 
     public void setDate(Calendar date) {
-        this.date = date;
+        this.recordDate = date;
     }
 
     public boolean isDispatcher() {
@@ -135,14 +140,14 @@ public class TimeRecord implements ValidEntity {
 
     @Override
     public boolean isValide() {
-        boolean isOk = date != null && userId != 0;
+        boolean isOk = recordDate != null && userId != 0;
 
-        // date not same day as startdate-day
+        // recordDate not same day as startdate-day
         if (isOk && startdate != null) {
-            isOk = date.equals(startdate) || date.after(startdate);
+            isOk = recordDate.equals(startdate) || recordDate.after(startdate);
             if (isOk) {
                 SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
-                isOk = fmt.format(date.getTime()).equals(fmt.format(startdate.getTime()));
+                isOk = fmt.format(recordDate.getTime()).equals(fmt.format(startdate.getTime()));
             }
         }
         //either start or enddate is null

@@ -19,7 +19,7 @@ public class TimeRecordManager {
 
 
     public List<TimeRecord> all() {
-        return this.em.createNamedQuery(TimeRecord.findAll, TimeRecord.class)
+        return this.em.createNamedQuery(TimeRecord.FIND_ALL, TimeRecord.class)
                 .getResultList();
     }
 
